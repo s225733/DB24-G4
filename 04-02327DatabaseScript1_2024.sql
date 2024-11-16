@@ -1,9 +1,14 @@
 -- Uncomment to create the database schema if needed
--- CREATE DATABASE mandatory; USE mandatory;
+CREATE DATABASE mandatory; 
+USE mandatory;
 
 -- Drop the database if it exists (optional)
 -- DROP DATABASE IF EXISTS mandatory;
-
+-- Create a view where we can see where people are from citywise
+CREATE view PassengerCity AS
+SELECT city, zip_code FROM passenger
+WHERE city = 'Copenhagen'
+;
 -- Create Passenger table
 CREATE TABLE IF NOT EXISTS Passenger (
     Id VARCHAR(10) PRIMARY KEY,            -- Card number as primary key
@@ -88,7 +93,7 @@ INSERT INTO Passenger (
     Id, email_address, first_name, last_name, street_name, civic_number, city, zip_code, country, phone_number
 )
 VALUES 
-    ('CIT53', 'johndoe@example.com', 'Jenny', 'Peterson', 'Malmvej', '150557-1234', 'Copenhagen', '2100', 'Denmark', '+45123456789'),
+    ('CIT53', 'JennyPeterson@example.com', 'Jenny', 'Peterson', 'Malmvej', '150557-1234', 'Copenhagen', '2100', 'Denmark', '+45123456789'),
     ('CIT87', 'janedoe@example.com', 'Jane', 'Doe', 'Vimmersgade', '201295-5678', 'Aarhus', '8000', 'Denmark', '+45234567890');
     
     INSERT INTO Stop (name, longitude, latitude)
@@ -105,7 +110,7 @@ VALUES
 INSERT INTO Journey (passenger_id, duration, timestamp, start_stop_id, end_stop_id, busline_id)
 VALUES 
     ('CIT01', '00:45:00', '2024-11-16 08:30:00', 1, 2, 'Line1'),
-    ('CIT02', '01:10:00', '2024-11-16 09:00:00', 2, 3, 'Line2');
+    ('CIT53', '01:10:00', '2024-11-16 09:00:00', 2, 3, 'Line2');
 
 INSERT INTO Order_of_Stop (stop_id, busline_id, stop_order)
 VALUES 
@@ -113,3 +118,18 @@ VALUES
     (2, 'Line1', 2),
     (2, 'Line2', 1),
     (3, 'Line2', 2);
+
+-- Display all passengers
+SELECT * FROM Passenger;
+
+-- Display all journeys
+SELECT * FROM Journey;
+
+-- Display all stops
+SELECT * FROM Stop;
+
+-- Display all buslines
+SELECT * FROM Busline;
+
+-- Display all orders of stop
+SELECT * FROM Order_of_Stop;
