@@ -46,11 +46,11 @@ CREATE TABLE IF NOT EXISTS Busline (
 -- Create Order_of_Stop table if it does not exist
 CREATE TABLE IF NOT EXISTS Order_of_Stop (
     stop_id INT NOT NULL,
-    journey_id INT NOT NULL,
+    busline_id VARCHAR(100) NOT NULL,
     stop_order INT NOT NULL,
-    PRIMARY KEY (stop_id, journey_id),
+    PRIMARY KEY (stop_id, busline_id),
     FOREIGN KEY (stop_id) REFERENCES Stop(Id),
-    FOREIGN KEY (journey_id) REFERENCES Journey(Id)
+    FOREIGN KEY (busline_id) REFERENCES Busline(name_of_line)
 );
 
 INSERT INTO Passenger(Id, 
