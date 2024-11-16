@@ -23,9 +23,13 @@ CREATE TABLE IF NOT EXISTS Journey (
     passenger_id VARCHAR(20) NOT NULL,
     duration TIME NOT NULL,
     timestamp DATETIME NOT NULL,
+    start_stop_id: INT NOT NULL
+    end_stop_id: INT NOT NULL
     busline_id VARCHAR(20) NOT NULL,
     FOREIGN KEY (passenger_id) REFERENCES Passenger(Id),
     FOREIGN KEY (busline_id) REFERENCES Busline(name_of_line)
+    FOREIGN KEY (start_stop_id) REFERENCES Stop(Id)
+    FOREIGN KEY (end_stop_id) REFERENCES Stop(Id)
 );
 
 -- Create Stop table if it does not exist
