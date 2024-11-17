@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS Busline (
     end_stop VARCHAR(255) NOT NULL         -- Ending stop name
 );
 
+-- Breakpoint. Previous queries need to be executed first.
+
 -- Create Journey table
 CREATE TABLE IF NOT EXISTS Journey (
     Id INT PRIMARY KEY AUTO_INCREMENT,     -- Journey ID
