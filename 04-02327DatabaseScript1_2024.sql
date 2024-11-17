@@ -63,61 +63,59 @@ CREATE TABLE IF NOT EXISTS Order_of_Stop (
     FOREIGN KEY (busline_id) REFERENCES Busline(name_of_line)
 );
 
--- Corrected Insert for Passenger table
-INSERT INTO Passenger (
-    Id,
-    email_address,
-    first_name,
-    last_name,
-    street_name,
-    civic_number,
-    city,
-    zip_code,
-    country,
-    phone_number
-)
-VALUES (
-    'CIT01',                          -- Unique identifier
-    'johndoe@example.com',            -- Email address
-    'John',                           -- First name
-    'Doe',                            -- Last name
-    'Main Street',                    -- Street name
-    '150557-1234',                    -- Civic number in CPR format (DDMMYY-XXXX)
-    'Sample City',                    -- City
-    '1234',                           -- Zip code
-    'Sample Country',                 -- Country
-    '+1234567890'                     -- Phone number
-);
-
+-- Populate the database - combined data for section 1 through 6.
+-- Insert into Passenger table
 INSERT INTO Passenger (
     Id, email_address, first_name, last_name, street_name, civic_number, city, zip_code, country, phone_number
 )
 VALUES 
+    ('CIT01', 'johndoe@example.com', 'John', 'Doe', 'Main Street', '150557-1234', 'Sample City', '1234', 'Sample Country', '+1234567890'), -- Corrected Insert
     ('CIT53', 'JennyPeterson@example.com', 'Jenny', 'Peterson', 'Malmvej', '150557-1234', 'Copenhagen', '2100', 'Denmark', '+45123456789'),
-    ('CIT87', 'janedoe@example.com', 'Jane', 'Doe', 'Vimmersgade', '201295-5678', 'Aarhus', '8000', 'Denmark', '+45234567890');
-    
-    INSERT INTO Stop (name, longitude, latitude)
+    ('CIT87', 'janedoe@example.com', 'Jane', 'Doe', 'Vimmersgade', '201295-5678', 'Aarhus', '8000', 'Denmark', '+45234567890'),
+    ('P001', 'alice@example.com', 'Alice', 'Smith', 'Main St', '010101-1234', 'Copenhagen', '1000', 'Denmark', '+4512345678'),
+    ('P002', 'bob@example.com', 'Bob', 'Johnson', 'Oak St', '020202-5678', 'Aarhus', '8000', 'Denmark', '+4598765432'),
+    ('P003', 'carol@example.com', 'Carol', 'Williams', 'Elm St', '030303-9101', 'Odense', '5000', 'Denmark', '+4587654321'),
+    ('P004', 'dave@example.com', 'Dave', 'Brown', 'Maple St', '040404-3141', 'Copenhagen', '1000', 'Denmark', '+4576543210');
+
+-- Insert into Stop table
+INSERT INTO Stop (name, longitude, latitude)
 VALUES 
     ('Central Station', 12.56553, 55.67594),
     ('City Square', 12.57377, 55.67610),
-    ('Airport', 12.64012, 55.61809);
+    ('Airport', 12.64012, 55.61809),
+    ('Harbor', 12.59123, 55.68089),
+    ('Park Avenue', 12.54889, 55.69000),
+    ('Unused Stop', 12.60000, 55.60000);
 
+-- Insert into Busline table
 INSERT INTO Busline (name_of_line, start_stop, end_stop)
 VALUES 
     ('Line1', 'Central Station', 'City Square'),
-    ('Line2', 'City Square', 'Airport');
+    ('Line2', 'City Square', 'Airport'),
+    ('Line3', 'Harbor', 'Park Avenue');
 
+-- Insert into Journey table
 INSERT INTO Journey (passenger_id, duration, timestamp, start_stop_id, end_stop_id, busline_id)
 VALUES 
     ('CIT01', '00:45:00', '2024-11-16 08:30:00', 1, 2, 'Line1'),
-    ('CIT53', '01:10:00', '2024-11-16 09:00:00', 2, 3, 'Line2');
+    ('CIT53', '01:10:00', '2024-11-16 09:00:00', 2, 3, 'Line2'),
+    ('P001', '00:30:00', '2024-11-16 08:00:00', 1, 2, 'Line1'),
+    ('P001', '00:45:00', '2024-11-16 10:00:00', 2, 3, 'Line2'),
+    ('P002', '00:50:00', '2024-11-16 09:00:00', 3, 4, 'Line3'),
+    ('P003', '00:20:00', '2024-11-16 08:15:00', 4, 5, 'Line3'),
+    ('P004', '00:40:00', '2024-11-16 11:00:00', 1, 2, 'Line1'),
+    ('P004', '00:25:00', '2024-11-16 13:00:00', 1, 2, 'Line1');
 
+-- Insert into Order_of_Stop table
 INSERT INTO Order_of_Stop (stop_id, busline_id, stop_order)
 VALUES 
     (1, 'Line1', 1),
     (2, 'Line1', 2),
     (2, 'Line2', 1),
-    (3, 'Line2', 2);
+    (3, 'Line2', 2),
+    (3, 'Line3', 1),
+    (4, 'Line3', 2),
+    (5, 'Line3', 3);
 
 -- Display all passengers
 SELECT * FROM Passenger;
