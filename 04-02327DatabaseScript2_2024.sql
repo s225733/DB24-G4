@@ -62,11 +62,96 @@ WHERE NOT EXISTS (
 );
 
 -- Query 5: Updated Query. Check all stops instead of start and end stop for utilization. If a stop is not part of any busroute, it isn't utilized.
-SELECT s.name
+SELECT *
 FROM Stop s
 WHERE s.Id NOT IN (
-    SELECT os.stop_id FROM Order_of_Stop
+    SELECT os.stop_id FROM Order_of_Stop os
 );
 
+DELIMITER //
+
+CREATE FUNCTION LinesServingBothStops(stop1 INT, stop2 INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    RETURN (
+        SELECT COUNT(DISTINCT os1.busline_id)
+        FROM Order_of_Stop os1
+        JOIN Order_of_Stop os2 ON os1.busline_id = os2.busline_id
+        WHERE os1.stop_id = stop1 AND os2.stop_id = stop2
+    );
+END //
+
+DELIMITER ;
+
+SELECT LinesServingBothStops(1, 2) AS LinesCount;
+
+DELIMITER //
+
+CREATE PROCEDURE AddStopToLine(new_stop INT, line_name VARCHAR(100))
+BEGIN
+    -- Declare variables at the start of the procedure
+    DECLARE max_order INT;
+
+    -- Check if the stop is already served by the line
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Order_of_Stop
+        WHERE stop_id = new_stop AND busline_id = line_name
+    ) THEN
+        -- Get the maximum stop order for the line
+        SELECT MAX(stop_order) INTO max_order
+        FROM Order_of_Stop
+        WHERE busline_id = line_name;
+
+        -- Add the new stop to the line with the next order number
+        INSERT INTO Order_of_Stop (stop_id, busline_id, stop_order)
+        VALUES (new_stop, line_name, COALESCE(max_order, 0) + 1);
+    END IF;
+END //
+
+DELIMITER ;
+
+CALL AddStopToLine(3, 'Line1');
+
+DELIMITER //
+
+CREATE TRIGGER PreventInvalidRide
+BEFORE INSERT ON Journey
+FOR EACH ROW
+BEGIN
+    -- Check if the ride starts and ends at the same stop
+    IF NEW.start_stop_id = NEW.end_stop_id THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Start and end stops cannot be the same.';
+    END IF;
+
+    -- Check if the start stop is not served by the line
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Order_of_Stop
+        WHERE stop_id = NEW.start_stop_id AND busline_id = NEW.busline_id
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Start stop is not served by the specified line.';
+    END IF;
+
+    -- Check if the end stop is not served by the line
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Order_of_Stop
+        WHERE stop_id = NEW.end_stop_id AND busline_id = NEW.busline_id
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'End stop is not served by the specified line.';
+    END IF;
+END //
+
+DELIMITER ;
 
 
+INSERT INTO Journey (passenger_id, duration, timestamp, start_stop_id, end_stop_id, busline_id)
+VALUES ('CIT01', '00:30:00', NOW(), 1, 1, 'Line1'); -- This will trigger an error.
+
+INSERT INTO Journey (passenger_id, duration, timestamp, start_stop_id, end_stop_id, busline_id)
+VALUES ('CIT01', '00:30:00', NOW(), 1, 3, 'Line1'); -- This will also trigger an error if stop 3 is not served by Line1.
