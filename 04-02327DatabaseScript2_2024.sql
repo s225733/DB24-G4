@@ -61,11 +61,13 @@ WHERE NOT EXISTS (
     HAVING COUNT(*) > 1
 );
 
--- Query 5: Updated Query. Check all stops instead of start and end stop for utilization. If a stop is not part of any busroute, it isn't utilized.
-SELECT *
+-- Query 5: Updated Query. See if a bus stop is neither start or end of any busline.
+SELECT s.name
 FROM Stop s
 WHERE s.Id NOT IN (
-    SELECT os.stop_id FROM Order_of_Stop os
+    SELECT start_stop_id FROM Journey
+    UNION
+    SELECT end_stop_id FROM Journey
 );
 
 DELIMITER //
