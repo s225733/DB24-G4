@@ -61,13 +61,11 @@ WHERE NOT EXISTS (
     HAVING COUNT(*) > 1
 );
 
--- Query 5: Show the name of the bus stops that are never used, that is, they are neither the start nor the end stop for any ride.
+-- Query 5: Updated Query. Check all stops instead of start and end stop for utilization. If a stop is not part of any busroute, it isn't utilized.
 SELECT s.name
 FROM Stop s
 WHERE s.Id NOT IN (
-    SELECT start_stop_id FROM Journey
-    UNION
-    SELECT end_stop_id FROM Journey
+    SELECT os.stop_id FROM Order_of_Stop
 );
 
 
